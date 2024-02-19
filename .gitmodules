@@ -1,0 +1,6 @@
+[submodule "crates/lifespan-crawler"]
+	path = crates/lifespan-crawler
+	url = git@github.com:liwuhou/lifespan-crawler.git
+[submodule "crates/life-progress-core"]
+	path = crates/life-progress-core
+	url = git@github.com:liwuhou/life-progress-core.git

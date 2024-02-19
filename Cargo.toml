@@ -1,0 +1,15 @@
+[package]
+name = "life-progress-cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace] 
+members = [ 
+  "crates/lifespan-crawler",
+  "crates/life-progress-core"
+]
+
+[dependencies]
+life_progress_core = { path = "./crates/life-progress-core" }
