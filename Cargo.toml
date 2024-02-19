@@ -12,4 +12,10 @@ members = [
 ]
 
 [dependencies]
+anyhow = "1.0.80"
+chrono = "0.4.34"
+clap = { version = "4.5.1", features = ["derive"] }
+serde = "1.0.196"
+serde_json = "1.0.113"
+lifespan_crawler = { path = "./crates/lifespan-crawler" }
 life_progress_core = { path = "./crates/life-progress-core" }
