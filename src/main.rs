@@ -10,9 +10,9 @@ use std::env;
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
-    /// Birthday
+    /// Birthday, eg: 2024-02-20|20240220|unix_timestamp
     #[arg(short, long, value_parser = get_birthday_time)]
     birthday: Option<NaiveDate>,
 
@@ -20,12 +20,12 @@ struct Cli {
     #[arg(short, long, value_parser = get_absolute_path)]
     config: Option<PathBuf>,
 
-    /// Gender
+    /// Gender, eg: 0: female, 1: male
     #[arg(short, long, value_parser = gender_parser)]
     gender: Option<Gender>,
 
-    /// Nation
-    #[arg(short, long, value_parser = fuzzly_parser)]
+    /// Nation, use search command to find your nation
+    #[arg(short, long, value_parser = fuzzy_search_nation_parser)]
     nation: Option<String>,
 
     #[command(subcommand)]
@@ -34,16 +34,24 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    /// Search country in the list
+    /// Search the country in the list
     Search(Search),
 
-    /// View country detail
+    /// View the country detail
     View(Search),
+
+    /// Custom config file path
+    Config(Path),
 }
 
 #[derive(Debug, Parser)]
 pub struct Search {
     pub name: String,
+}
+
+#[derive(Debug, Parser)]
+pub struct Path {
+    pub path: String,
 }
 
 fn main() -> Result<()> {
@@ -86,9 +94,18 @@ fn main() -> Result<()> {
                     print_notion_error();
                 }
             }
+            Some(Commands::Config(Path { path })) => {
+                let result = read_config(&path);
+            }
             _ => (),
         }
     }
+
+    Ok(())
+}
+
+fn read_config(path: &str) -> Result<()> {
+    let config_path = get_absolute_path(path)?;
 
     Ok(())
 }
@@ -112,19 +129,21 @@ fn gender_parser(input: &str) -> Result<Gender> {
     }
 }
 
-fn fuzzly_parser(input: &str) -> Result<String, String> {
-    todo!()
-    // let data = get_data().unwrap();
-    // if !data.contains_key(input) {
-    //     return Err("error".into());
-    // }
-    // if input.is_empty() {
-    //     return Ok("Common".to_string());
-    // }
+fn fuzzy_search_nation_parser(input: &str) -> Result<String> {
+    if input.is_empty() {
+        return Ok("Common".to_string());
+    }
 
-    // let countries_list: Vec<String> = data.into_keys().collect();
+    let searched_list = search_nation(input)?;
+    let target = searched_list
+        .iter()
+        .max_by(|(_, (score_a, _)), (_, (score_b, _))| score_a.cmp(score_b));
 
-    // Ok(String::new())
+    if let Some(((country_name, _), _)) = target {
+        Ok(country_name.clone())
+    } else {
+        Ok(String::from("Common"))
+    }
 }
 
 fn print_notion_error() {
