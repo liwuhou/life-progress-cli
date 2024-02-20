@@ -1,17 +1,19 @@
 use anyhow::Result;
 use chrono::NaiveDate;
-use life_progress_core::{get_brithday_time, Gender};
-use lifespan_crawler::get_data;
+use clap::{Parser, Subcommand};
+use colored::*;
+use life_progress_core::{
+    get_birthday_time, get_progress_info, search_nation, view_nation, Gender, ProgressInfo,
+};
+use lifespan_crawler::CountryInfo;
 use std::env;
 use std::path::PathBuf;
-
-use clap::Parser;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
     /// Birthday
-    #[arg(short, long, value_parser = get_brithday_time)]
+    #[arg(short, long, value_parser = get_birthday_time)]
     birthday: Option<NaiveDate>,
 
     /// Custom config file path
@@ -25,7 +27,23 @@ struct Cli {
     /// Nation
     #[arg(short, long, value_parser = fuzzly_parser)]
     nation: Option<String>,
-    // Command
+
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum Commands {
+    /// Search country in the list
+    Search(Search),
+
+    /// View country detail
+    View(Search),
+}
+
+#[derive(Debug, Parser)]
+pub struct Search {
+    pub name: String,
 }
 
 fn main() -> Result<()> {
@@ -35,10 +53,43 @@ fn main() -> Result<()> {
         // println!("{:?}", config_path);
         // let content = fs::read_to_string(config_path)?;
         // println!("{}", content);
-    } else {
-        let birthday = cli.birthday;
+    } else if let Some(birthday) = cli.birthday {
         let gender = cli.gender;
+        let nation = cli.nation.as_deref();
+
+        let ProgressInfo {
+            spent,
+            rest,
+            progress,
+            ..
+        } = get_progress_info(birthday, gender, nation)?;
+        println!("You spent {spent} days, completed {progress}% of life progress, still have {rest} days left. enjoy!")
+    } else {
+        match cli.command {
+            Some(Commands::Search(Search { name })) => {
+                let searched_list = search_nation(&name)?;
+                if !searched_list.is_empty() {
+                    for ((nation, country_info), (_, indices)) in searched_list {
+                        print_nation(&nation, indices);
+                        print!(" ");
+                        print_country(&country_info);
+                    }
+                } else {
+                    print_notion_error();
+                }
+            }
+            Some(Commands::View(Search { name })) => {
+                if let Some(result) = view_nation(&name) {
+                    print!("{} ", name);
+                    print_country(&result);
+                } else {
+                    print_notion_error();
+                }
+            }
+            _ => (),
+        }
     }
+
     Ok(())
 }
 
@@ -62,15 +113,36 @@ fn gender_parser(input: &str) -> Result<Gender> {
 }
 
 fn fuzzly_parser(input: &str) -> Result<String, String> {
-    let data = get_data().unwrap();
-    if !data.contains_key(input) {
-        return Err("error".into());
-    }
-    if input.is_empty() {
-        return Ok("Common".to_string());
-    }
+    todo!()
+    // let data = get_data().unwrap();
+    // if !data.contains_key(input) {
+    //     return Err("error".into());
+    // }
+    // if input.is_empty() {
+    //     return Ok("Common".to_string());
+    // }
 
-    let countries_list: Vec<String> = data.into_keys().collect();
+    // let countries_list: Vec<String> = data.into_keys().collect();
 
-    Ok(String::new())
+    // Ok(String::new())
+}
+
+fn print_notion_error() {
+    print!("{} ", String::from(" ERROR ").white().on_red());
+    println!("{}", "Nothing to found");
+}
+
+fn print_nation(nation: &str, indices: Vec<usize>) {
+    for (idx, char) in nation.char_indices() {
+        if indices.contains(&idx) {
+            print!("{}", String::from(char).green().bold());
+        } else {
+            print!("{}", String::from(char).bold());
+        }
+    }
+}
+
+fn print_country(country_info: &CountryInfo) {
+    let CountryInfo { all, male, female } = country_info;
+    println!("{{ Average: {}, Male: {}, Female: {} }}", all, male, female);
 }

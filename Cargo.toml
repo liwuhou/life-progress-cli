@@ -19,3 +19,4 @@ serde = "1.0.196"
 serde_json = "1.0.113"
 lifespan_crawler = { path = "./crates/lifespan-crawler" }
 life_progress_core = { path = "./crates/life-progress-core" }
+colored = "2.1.0"
