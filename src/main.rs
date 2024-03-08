@@ -71,7 +71,10 @@ fn main() -> Result<()> {
             progress,
             ..
         } = get_progress_info(birthday, gender, nation)?;
-        println!("You spent {spent} days, completed {progress}% of life progress, still have {rest} days left. enjoy!")
+        println!(
+            "You spent {} days, completed {:.2}% of life progress, still have {} days left. enjoy!",
+            spent, progress, rest
+        )
     } else {
         match cli.command {
             Some(Commands::Search(Search { name })) => {
