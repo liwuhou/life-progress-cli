@@ -98,7 +98,7 @@ fn main() -> Result<()> {
                 }
             }
             Some(Commands::Config(Path { path })) => {
-                let result = read_config(&path);
+                let _result = read_config(&path);
             }
             _ => (),
         }
@@ -108,7 +108,7 @@ fn main() -> Result<()> {
 }
 
 fn read_config(path: &str) -> Result<()> {
-    let config_path = get_absolute_path(path)?;
+    let _config_path = get_absolute_path(path)?;
 
     Ok(())
 }
