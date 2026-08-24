@@ -3,22 +3,17 @@ use chrono::NaiveDate;
 use clap::{Parser, Subcommand};
 use colored::*;
 use life_progress_core::{
-    get_birthday_time, get_progress_info, search_nation, view_nation, Gender, ProgressInfo,
+    get_birthday_time, get_progress_info, load_profile, search_nation, view_nation, Gender,
+    ProgressInfo,
 };
 use lifespan_crawler::CountryInfo;
-use std::env;
-use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None, arg_required_else_help = true)]
+#[command(version, about, long_about = None)]
 struct Cli {
     /// Birthday, eg: 2024-02-20|20240220|unix_timestamp
     #[arg(short, long, value_parser = get_birthday_time)]
     birthday: Option<NaiveDate>,
-
-    /// Custom config file path
-    #[arg(short, long, value_parser = get_absolute_path)]
-    config: Option<PathBuf>,
 
     /// Gender, eg: 0: female, 1: male
     #[arg(short, long, value_parser = gender_parser)]
@@ -39,9 +34,6 @@ pub enum Commands {
 
     /// View the country detail
     View(Search),
-
-    /// Custom config file path
-    Config(Path),
 }
 
 #[derive(Debug, Parser)]
@@ -49,79 +41,61 @@ pub struct Search {
     pub name: String,
 }
 
-#[derive(Debug, Parser)]
-pub struct Path {
-    pub path: String,
-}
-
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    if let Some(config_path) = cli.config.as_deref() {
-        println!("{}", config_path.is_absolute());
-        // println!("{:?}", config_path);
-        // let content = fs::read_to_string(config_path)?;
-        // println!("{}", content);
-    } else if let Some(birthday) = cli.birthday {
-        let gender = cli.gender;
-        let nation = cli.nation.as_deref();
 
-        let ProgressInfo {
-            spent,
-            rest,
-            progress,
-            ..
-        } = get_progress_info(birthday, gender, nation)?;
-        println!(
-            "You spent {} days, completed {:.2}% of life progress, still have {} days left. enjoy!",
-            spent, progress, rest
-        )
-    } else {
-        match cli.command {
-            Some(Commands::Search(Search { name })) => {
-                let searched_list = search_nation(&name)?;
-                if !searched_list.is_empty() {
-                    for ((nation, country_info), (_, indices)) in searched_list {
-                        print_nation(&nation, indices);
-                        print!(" ");
-                        print_country(&country_info);
-                    }
-                } else {
-                    print_notion_error();
+    if let Some(birthday) = cli.birthday {
+        print_progress(birthday, cli.gender, cli.nation.as_deref())?;
+        return Ok(());
+    }
+
+    match cli.command {
+        Some(Commands::Search(Search { name })) => {
+            let searched_list = search_nation(&name)?;
+            if !searched_list.is_empty() {
+                for ((nation, country_info), (_, indices)) in searched_list {
+                    print_nation(&nation, indices);
+                    print!(" ");
+                    print_country(&country_info);
                 }
+            } else {
+                print_notion_error();
             }
-            Some(Commands::View(Search { name })) => {
-                if let Some(result) = view_nation(&name) {
-                    print!("{} ", name);
-                    print_country(&result);
-                } else {
-                    print_notion_error();
-                }
-            }
-            Some(Commands::Config(Path { path })) => {
-                let _result = read_config(&path);
-            }
-            _ => (),
         }
+        Some(Commands::View(Search { name })) => {
+            if let Some(result) = view_nation(&name) {
+                print!("{} ", name);
+                print_country(&result);
+            } else {
+                print_notion_error();
+            }
+        }
+        None => match load_profile()? {
+            Some(profile) => {
+                let birthday = get_birthday_time(&profile.birthday)?;
+                print_progress(birthday, profile.gender, Some(&profile.nation))?;
+            }
+            None => eprintln!(
+                "No profile configured at ~/.config/live_progress/profile.toml; provide --birthday instead."
+            ),
+        },
     }
 
     Ok(())
 }
 
-fn read_config(path: &str) -> Result<()> {
-    let _config_path = get_absolute_path(path)?;
-
+fn print_progress(birthday: NaiveDate, gender: Option<Gender>, nation: Option<&str>) -> Result<()> {
+    let ProgressInfo {
+        spent,
+        rest,
+        progress,
+        ..
+    } = get_progress_info(birthday, gender, nation)?;
+    println!(
+        "You spent {} days, completed {:.2}% of life progress, still have {} days left. enjoy!",
+        spent, progress, rest
+    );
     Ok(())
-}
-
-fn get_absolute_path(path: &str) -> Result<PathBuf> {
-    let path = PathBuf::from(path);
-    if path.is_absolute() {
-        Ok(path)
-    } else {
-        let mut pwd = env::current_dir()?;
-        pwd.push(path);
-        Ok(pwd)
-    }
 }
 
 fn gender_parser(input: &str) -> Result<Gender> {

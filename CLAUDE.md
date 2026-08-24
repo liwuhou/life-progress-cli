@@ -13,6 +13,8 @@ cargo run -- search korea                     # Search for a country
 cargo run -- view "South Korea"               # View country life expectancy
 ```
 
+Running `cargo run --` without a birthday or subcommand reads the shared profile at `~/.config/live_progress/profile.toml`. Its v1 TOML fields are `schema_version = 1`, `birthday` (`YYYY-MM-DD`), optional lowercase `gender`, and canonical `nation`.
+
 ## Build Universal Binary (macOS)
 
 Build a universal binary that works on both Intel (x86_64) and Apple Silicon (arm64) Macs:
