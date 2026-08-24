@@ -6,17 +6,27 @@ Usage: life-progress-cli [OPTIONS] [COMMAND]
 Commands:
   search  Search the country in the list
   view    View the country detail
-  config  Custom config file path
   help    Print this message or the help of the given subcommand(s)
 
 Options:
   -b, --birthday <BIRTHDAY>  Birthday, eg: 2024-02-20|20240220|unix_timestamp
-  -c, --config <CONFIG>      Custom config file path
   -g, --gender <GENDER>      Gender, eg: 0: female, 1: male
   -n, --nation <NATION>      Nation, use search command to find your nation
   -h, --help                 Print help
   -V, --version              Print version
 ```
+
+When invoked without a birthday or subcommand, the CLI loads `~/.config/life_progress/profile.toml`. The profile must use the shared v1 schema:
+
+```toml
+schema_version = 1
+birthday = "1994-12-10"
+gender = "male" # optional; "male" or "female"
+nation = "People's Republic of China"
+```
+
+Malformed profiles, future birthdays, non-canonical nations, unknown fields, and unsupported schema versions are rejected. Use `-b`, `-g`, and `-n` to override the profile for one invocation.
+
 
 Sample Example
 
