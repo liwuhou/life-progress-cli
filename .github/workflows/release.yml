@@ -58,6 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
