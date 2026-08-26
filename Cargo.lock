@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "life-progress-cli"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -640,6 +640,7 @@ dependencies = [
  "lifespan_crawler",
  "serde",
  "serde_json",
+ "toml",
 ]
 
 [[package]]

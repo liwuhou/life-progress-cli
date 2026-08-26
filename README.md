@@ -27,28 +27,60 @@ nation = "People's Republic of China"
 
 Malformed profiles, future birthdays, non-canonical nations, unknown fields, and unsupported schema versions are rejected. Use `-b`, `-g`, and `-n` to override the profile for one invocation.
 
+Display fields are configured separately in `~/.config/life_progress/cli.toml`; this keeps the shared profile contract portable:
+
+```toml
+[display]
+show_born = false
+show_nation = false
+show_gender = false
+show_elapsed = true
+show_remaining = true
+show_complete = true
+show_timeline = false
+```
+
+All seven fields default to visible. To render only plain text, select `mode = "text"` and define `text_template`:
+
+```toml
+[display]
+mode = "text"
+text_template = "{elapsed} days elapsed; {remaining} days remaining ({complete})"
+```
+
+Supported placeholders are `{born}`, `{nation}`, `{gender}`, `{elapsed}`, `{remaining}`, `{complete}`, and `{timeline}`.
+
 
 Sample Example
 
 ```shell
-$ life-progress-cli -b 2020-10-24
-
-You spent 1215 days, completed 4.46% of life progress, still have 26006 days left. enjoy!
-
 $ life-progress-cli -b 2020-10-24 -g 1 -n China
 
-You spent 1215 days, completed 4.44% of life progress, still have 26160 days left. enjoy!
+LIFE PROGRESS
+────────────────────────────────────────
+  Born         2020-10-24
+  Nation       China
+  Gender       Male
+  Elapsed           2132 days
+  Remaining       25316 days
+  Complete        7.77%
+  Timeline       ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+────────────────────────────────────────
+  Keep moving.
 ```
 
-You can use `life-progress-cli search` your country in the list.
+Use `life-progress-cli search` to find a country in the list.
 
 ```shell
-$ life-progress-cli search china
-
-People's Republic of China { Average: 77.72, Male: 75, Female: 80.7 }
-
 $ life-progress-cli search korea
 
-North Korea { Average: 71.77, Male: 67.88, Female: 75.88 }
-South Korea { Average: 82.97, Male: 79.88, Female: 86.24 }
+NATION SEARCH
+  korea
+────────────────────────────────────────
+  South Korea
+    Average  84.33 years  Male 81.19 years  Female 87.16 years
+
+  North Korea
+    Average  73.64 years  Male 71.46 years  Female 75.74 years
 ```
+

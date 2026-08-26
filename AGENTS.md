@@ -18,6 +18,7 @@ CLI (src/main.rs)
 - `crates/lifespan-crawler/src/lib.rs` is synchronous and cache-first. It reads `~/.config/life_progress/.tmp_expectancy.json`; a miss fetches Wikipedia and persists JSON. Fetch failure uses bundled default expectancy data.
 - Country selection uses fuzzy matching and falls back to `Common`; `view_nation` performs an exact lookup and maps data failures to `None`.
 - A shared profile is versioned TOML (`schema_version = 1`, `birthday`, optional lowercase `gender`, canonical `nation`). Loading treats missing profiles separately and rejects malformed or semantically invalid data. Preserve the canonical `People's Republic of China` profile name even when fetched data uses the `China` source key.
+- CLI-only display preferences live in optional `~/.config/life_progress/cli.toml` under `[display]`; all seven report fields default visible, can be hidden independently, and `mode = "text"` enables `text_template` placeholders. Keep these settings out of the shared profile schema.
 
 ## Key Directories
 
@@ -46,6 +47,8 @@ make build-universal       # output: target/universal/life-progress-cli
 make install-universal     # installs to ~/.cargo/bin
 ```
 
+
+Pushing a `v*` tag triggers `.github/workflows/release.yml`; it tests and formats the workspace, builds Linux x86_64 and macOS arm64 binaries, creates SHA-256 files, and publishes a GitHub release with generated notes.
 `make release-universal` aliases the universal build. `make clean` removes Cargo artifacts and the universal output.
 
 ## Code Conventions & Common Patterns
@@ -62,17 +65,19 @@ make install-universal     # installs to ~/.cargo/bin
 - `Cargo.toml` — root package plus workspace membership and local crate dependencies.
 - `Cargo.lock` — committed dependency resolution; update it with dependency changes.
 - `src/main.rs` — executable entry point, Clap definitions, command dispatch, CLI output.
+- `~/.config/life_progress/cli.toml` — optional CLI display visibility settings; defaults keep all progress fields visible.
 - `crates/life-progress-core/src/lib.rs` — shared profile validation/loading, domain API, and inline unit tests.
 - `crates/lifespan-crawler/src/lib.rs` — country data retrieval and fallback logic.
 - `crates/lifespan-crawler/default_expectancy.json` — offline fallback data.
 - `Makefile` — macOS universal build and install targets.
+- `.github/workflows/release.yml` — tag-triggered cross-platform build and GitHub release pipeline.
 - `README.md` and `CLAUDE.md` — CLI usage and contributor examples.
 
 ## Runtime/Tooling Preferences
 
 - Use Cargo/Rust, not Node or Bun tooling. The workspace targets Rust edition 2021; no `rust-toolchain` file pins a compiler version.
 - Treat `Cargo.lock` as the package-manager lockfile. The two workspace crates are Git submodules (`.gitmodules`); initialize them before building in a fresh clone.
-- No repository-specific formatter, linter, typecheck, CI, or coverage configuration exists. Standard `cargo fmt`, `cargo clippy`, and `cargo check` are optional local checks, not project-defined commands.
+- CI/release automation is defined in `.github/workflows/release.yml`; standard `cargo fmt`, `cargo clippy`, and `cargo check` remain optional local checks.
 
 ## Testing & QA
 
