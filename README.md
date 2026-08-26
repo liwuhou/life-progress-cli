@@ -1,5 +1,40 @@
 # life-progress-cli
 
+## Installation
+
+### GitHub Releases
+
+Download a prebuilt binary from the [releases page](https://github.com/liwuhou/life-progress-cli/releases), with its SHA-256 checksum. The current `v0.1.2` release includes Linux x86_64 and macOS arm64 binaries; the release workflow now adds macOS Intel and Windows x86_64 to the next tagged release.
+
+After the next tagged release, Windows users can download `life-progress-cli-windows-x86_64.exe` and install it from PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\bin"
+Invoke-WebRequest `
+  https://github.com/liwuhou/life-progress-cli/releases/latest/download/life-progress-cli-windows-x86_64.exe `
+  -OutFile "$HOME\bin\life-progress-cli.exe"
+```
+
+Add `$HOME\bin` to `PATH` if it is not already available.
+
+### Cargo
+
+Install directly from this repository on macOS, Linux, or Windows (requires Rust and Cargo):
+
+```shell
+cargo install --git https://github.com/liwuhou/life-progress-cli.git --locked
+```
+
+The package is prepared for a future crates.io release; after it is published, the shorter command will be:
+
+```shell
+cargo install life-progress-cli
+```
+
+### Homebrew
+
+An official Homebrew tap is not published yet. Until a tap is available, macOS users can use the GitHub release binary or the Cargo installation above.
+
 ```shell
 Usage: life-progress-cli [OPTIONS] [COMMAND]
 
@@ -61,10 +96,10 @@ LIFE PROGRESS
   Born         2020-10-24
   Nation       China
   Gender       Male
-  Elapsed           2132 days
-  Remaining       25316 days
-  Complete        7.77%
-  Timeline       ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  Elapsed      2132 days
+  Remaining    25316 days
+  Complete     7.77%
+  Timeline     ██░░░░░░░░░░░░░░░░░░░░░░
 ────────────────────────────────────────
   Keep moving.
 ```

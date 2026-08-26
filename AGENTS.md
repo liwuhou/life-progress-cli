@@ -48,7 +48,7 @@ make install-universal     # installs to ~/.cargo/bin
 ```
 
 
-Pushing a `v*` tag triggers `.github/workflows/release.yml`; it tests and formats the workspace, builds Linux x86_64 and macOS arm64 binaries, creates SHA-256 files, and publishes a GitHub release with generated notes.
+Pushing a `v*` tag triggers `.github/workflows/release.yml`; it tests and formats the workspace, builds Linux x86_64, macOS x86_64/arm64, and Windows x86_64 binaries, creates SHA-256 files, and publishes a GitHub release with generated notes.
 `make release-universal` aliases the universal build. `make clean` removes Cargo artifacts and the universal output.
 
 ## Code Conventions & Common Patterns

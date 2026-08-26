@@ -18,8 +18,12 @@ jobs:
         include:
           - name: linux-x86_64
             os: ubuntu-latest
+          - name: macos-x86_64
+            os: macos-13
           - name: macos-arm64
             os: macos-latest
+          - name: windows-x86_64
+            os: windows-latest
 
     steps:
       - name: Check out source
@@ -39,12 +43,23 @@ jobs:
       - name: Build release binary
         run: cargo build --release
 
-      - name: Package binary
+      - name: Package Unix binary
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           mkdir -p dist
           cp target/release/life-progress-cli "dist/life-progress-cli-${{ matrix.name }}"
           shasum -a 256 "dist/life-progress-cli-${{ matrix.name }}" > "dist/life-progress-cli-${{ matrix.name }}.sha256"
+
+      - name: Package Windows binary
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          $asset = "life-progress-cli-${{ matrix.name }}.exe"
+          Copy-Item target/release/life-progress-cli.exe "dist/$asset"
+          $hash = (Get-FileHash "dist/$asset" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $asset" | Out-File "dist/$asset.sha256" -Encoding ascii
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
