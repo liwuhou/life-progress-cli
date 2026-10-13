@@ -1,6 +1,6 @@
 [package]
 name = "life-progress-cli"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "A terminal life-progress tracker with shared profiles."
 repository = "https://github.com/liwuhou/life-progress-cli"

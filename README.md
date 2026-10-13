@@ -4,9 +4,9 @@
 
 ### GitHub Releases
 
-Download a prebuilt binary from the [releases page](https://github.com/liwuhou/life-progress-cli/releases), with its SHA-256 checksum. The current `v0.1.2` release includes Linux x86_64 and macOS arm64 binaries; the release workflow now adds macOS Intel and Windows x86_64 to the next tagged release.
+Download a prebuilt binary from the [releases page](https://github.com/liwuhou/life-progress-cli/releases), with its SHA-256 checksum. Released assets cover Linux x86_64, macOS arm64, macOS Intel (x86_64), and Windows x86_64.
 
-After the next tagged release, Windows users can download `life-progress-cli-windows-x86_64.exe` and install it from PowerShell:
+Windows users can download `life-progress-cli-windows-x86_64.exe` and install it from PowerShell:
 
 ```powershell
 New-Item -ItemType Directory -Force "$HOME\bin"
