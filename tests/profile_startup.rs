@@ -1,3 +1,9 @@
+// Windows is excluded: `dirs::home_dir()` resolves the profile folder through
+// `SHGetKnownFolderPath` there and ignores `HOME`, so the isolated `HOME` these
+// tests pass to the child process would not redirect the config directory and
+// they would read the runner's real profile instead.
+#![cfg(not(windows))]
+
 use std::{
     fs,
     path::{Path, PathBuf},
